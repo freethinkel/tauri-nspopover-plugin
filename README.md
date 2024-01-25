@@ -37,9 +37,15 @@ tauri.config.json
 ```json
 
   "systemTray": {
-    "iconPath": "./icons/statusbar-icon.png",
+    "iconPath": "icons/statusbar-icon.png",
     "iconAsTemplate": true
   },
+...
+  "bundle": {
+    "resources": [
+      "icons/statusbar-icon.png"
+    ]
+  }
 ...
   "windows": [
     {
