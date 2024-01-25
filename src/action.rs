@@ -23,15 +23,8 @@ unsafe impl RefEncode for Object {
 pub type idd = *mut Object;
 type PrivateMarker = [u8; 0];
 
-unsafe trait Wrapable {
-    fn get_sel() -> Sel;
-}
-
 #[derive(Debug)]
-pub struct TargetActionHandler {
-    action: Box<Action>,
-    // invoker: <AnyObject,
-}
+pub struct TargetActionHandler {}
 
 impl TargetActionHandler {
     /// Returns a new TargetEventHandler.
@@ -46,7 +39,6 @@ impl TargetActionHandler {
 
             unsafe fn set_ivar<T: Encode>(obj: &mut AnyObject, name: &str, value: T) {
                 *obj.get_mut_ivar::<T>(name) = value;
-                // std::ptr::write(ivar_ptr, value);
             }
 
             let obj_ptr: *mut AnyObject = std::mem::transmute(obj);
@@ -54,15 +46,9 @@ impl TargetActionHandler {
 
             let _: () = msg_send![control, setAction: sel!(perform:)];
             let _: () = msg_send![control, setTarget: obj_ptr];
-
-            // println!("mutated: {:?}", obj_ptr);
-            // println!("orgin: {:?}", obj.clone());
         }
 
-        TargetActionHandler {
-            // invoker: unsafe { invoker.as_ref().unwrap() },
-            action: unsafe { Box::from_raw(ptr) },
-        }
+        TargetActionHandler {}
     }
 }
 

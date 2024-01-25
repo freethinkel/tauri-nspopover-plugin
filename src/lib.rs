@@ -49,8 +49,8 @@ impl<R: Runtime> WindowExt<R> for Window<R> {
                 height: size.height,
             },
         );
-        let mut statusbar_controller = StatusBarController::new(popover_controller.popover(), icon);
-        statusbar_controller.on_click();
+        let statusbar_controller = StatusBarController::new(popover_controller.popover(), icon);
+        statusbar_controller.set_on_click_handler();
     }
 }
 

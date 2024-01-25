@@ -1,7 +1,7 @@
 [package]
 name = "tauri-plugin-nspopover"
-version = "0.0.0"
-authors = [ "You" ]
+version = "1.0.0"
+authors = [ "freethinkel" ]
 description = ""
 edition = "2021"
 rust-version = "1.60"

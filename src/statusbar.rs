@@ -28,7 +28,7 @@ impl StatusBarController {
         return StatusBarController { button, popover };
     }
 
-    pub fn on_click(&mut self) {
+    pub fn set_on_click_handler(&self) {
         unsafe {
             let popover = Arc::new(Mutex::new(SafeNSPopover(self.popover.clone())));
             let popover = Arc::clone(&popover);

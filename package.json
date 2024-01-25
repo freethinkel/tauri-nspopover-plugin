@@ -1,16 +1,8 @@
 {
   "name": "tauri-plugin-nspopover-api",
-  "version": "0.0.0",
-  "author": "You",
+  "version": "1.0.0",
+  "author": "freethinkel",
   "description": "",
-  "browser": "webview-dist/index.js",
-  "main": "webview-dist/index.js",
-  "types": "webview-dist/index.d.ts",
-  "scripts": {
-    "build": "rollup -c ./webview-src/rollup.config.js",
-    "prepublishOnly": "yarn build",
-    "pretest": "yarn build"
-  },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "13.3.0",
     "@rollup/plugin-typescript": "8.3.3",
