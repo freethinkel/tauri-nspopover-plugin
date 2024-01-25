@@ -13,7 +13,7 @@ Cargo.toml
 
 ```toml
 [dependencies]
-tauri-plugin-nspopover = { path = "../../tauri-plugin-nspopover" }
+tauri-plugin-nspopover = { git = "https://github.com/freethinkel/tauri-nspopover-plugin.git" }
 ```
 
 main.rs
