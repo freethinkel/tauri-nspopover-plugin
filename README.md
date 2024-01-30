@@ -19,9 +19,13 @@ tauri-plugin-nspopover = { git = "https://github.com/freethinkel/tauri-nspopover
 main.rs
 
 ```rust
+use tauri::{ActivationPolicy, Manager};
+use tauri_plugin_nspopover::WindowExt;
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
+            app.set_activation_policy(ActivationPolicy::Accessory);
             let window = app.app_handle().get_window("main").unwrap();
             window.to_popover();
             Ok(())

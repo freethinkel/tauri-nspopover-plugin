@@ -1,6 +1,6 @@
 [package]
 name = "tauri-plugin-nspopover"
-version = "1.0.1"
+version = "1.1.0"
 authors = [ "freethinkel" ]
 description = ""
 edition = "2021"
@@ -8,7 +8,7 @@ rust-version = "1.60"
 exclude = ["/examples", "/webview-dist", "/webview-src", "node_modules"]
 
 [dependencies]
-tauri = { version = "1.5.4" }
+tauri = { version = "1.5.4", features = [ "macos-private-api", "system-tray"] }
 serde = "1.0"
 thiserror = "1.0"
 icrate = { version = "0.1.0", features = ["Foundation", "Foundation_all", "AppKit", "AppKit_NSPopover", "AppKit_NSWindow", "AppKit_NSWindowController", "AppKit_NSViewController", "AppKit_NSStatusBar", "AppKit_NSStatusItem", "AppKit_NSButton", "AppKit_NSStatusBarButton", "AppKit_NSImage", "AppKit_NSColor"] }

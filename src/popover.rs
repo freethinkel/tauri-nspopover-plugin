@@ -43,8 +43,6 @@ impl PopoverController {
             popover.setContentSize(size);
             popover.setContentViewController(Some(ctrl.as_ref()));
 
-            window.close();
-
             popover
         }
     }

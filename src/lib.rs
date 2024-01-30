@@ -1,9 +1,4 @@
-use delegate::AppDelegate;
-use icrate::{
-    objc2::runtime::ProtocolObject,
-    AppKit::{NSApplication, NSWindow},
-    Foundation::{CGSize, MainThreadMarker},
-};
+use icrate::{AppKit::NSWindow, Foundation::CGSize};
 use statusbar::StatusBarController;
 use tauri::{
     plugin::{Builder, TauriPlugin},
@@ -13,7 +8,6 @@ use tauri::{
 use std::fs;
 
 mod action;
-mod delegate;
 mod popover;
 mod statusbar;
 
@@ -35,12 +29,6 @@ impl<R: Runtime> WindowExt<R> for Window<R> {
         let window = self;
         let window = window.ns_window().unwrap();
         let ns_window = unsafe { (window.cast() as *mut NSWindow).as_ref().unwrap() };
-        let mtm = MainThreadMarker::new().unwrap();
-
-        let delegate = AppDelegate::new(42, true, mtm);
-        let object = ProtocolObject::from_ref(&*delegate);
-
-        NSApplication::sharedApplication(mtm).setDelegate(Some(object));
 
         let scale = self.scale_factor().unwrap();
         let size: LogicalSize<f64> = self.inner_size().unwrap().to_logical(scale);
@@ -52,6 +40,7 @@ impl<R: Runtime> WindowExt<R> for Window<R> {
                 height: size.height,
             },
         );
+        let _ = self.hide();
         let statusbar_controller = StatusBarController::new(popover_controller.popover(), icon);
         statusbar_controller.set_on_click_handler();
     }
