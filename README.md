@@ -1,11 +1,12 @@
 # Tauri Plugin NSpopover
 
+### for Tauri v2
+
 Only for MacOS
 
 <div style="display: flex; justify-content: center;">
   <img src="./screenshots/example.png" width="300"/>
 </div>
-<!-- ![Screenshot](screenshots/example.png) -->
 
 ## How to use?
 
@@ -44,12 +45,6 @@ tauri.config.json
     "iconPath": "icons/statusbar-icon.png",
     "iconAsTemplate": true
   },
-...
-  "bundle": {
-    "resources": [
-      "icons/statusbar-icon.png"
-    ]
-  }
 ...
   "windows": [
     {
