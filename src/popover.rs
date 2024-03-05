@@ -40,7 +40,6 @@ impl PopoverController {
 
             let popover = NSPopover::new(mtm);
             popover.setBehavior(NSPopoverBehaviorTransient);
-            popover.setContentSize(size);
             popover.setContentViewController(Some(ctrl.as_ref()));
 
             popover
