@@ -96,7 +96,7 @@ impl<R: Runtime> StatusItemGetter for TrayIcon<R> {
 
 impl<R: Runtime> WindowExt<R> for WebviewWindow<R> {
     fn to_popover(&self) {
-        let tray = self.app_handle().tray().unwrap();
+        let tray = self.app_handle().tray_by_id("main").unwrap();
 
         let button = tray.get_status_bar_button();
 
