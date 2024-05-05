@@ -20,7 +20,7 @@ unsafe impl RefEncode for Object {
     // Implement the required methods...
 }
 
-pub type idd = *mut Object;
+pub type Idd = *mut Object;
 type PrivateMarker = [u8; 0];
 
 #[derive(Debug)]
@@ -74,7 +74,7 @@ pub fn load<'a, T>(this: &'a AnyObject, ptr_name: &str) -> &'a T {
     }
 }
 
-extern "C" fn perform<'a, F: Fn() + 'static>(this: &'a mut AnyObject, _: Sel, _sender: idd) {
+extern "C" fn perform<'a, F: Fn() + 'static>(this: &'a mut AnyObject, _: Sel, _sender: Idd) {
     let action = load::<Action>(this, ACTION_CALLBACK_PTR);
 
     (action.0)();

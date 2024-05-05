@@ -2,7 +2,7 @@ use icrate::{AppKit::NSWindow, Foundation::CGSize};
 use statusbar::StatusBarController;
 use tauri::{
     plugin::{Builder, TauriPlugin},
-    Env, LogicalSize, Manager, Runtime, Window,
+    LogicalSize, Manager, Runtime, Window,
 };
 
 use std::fs;
@@ -21,9 +21,6 @@ impl<R: Runtime> WindowExt<R> for Window<R> {
     fn to_popover(&self) {
         let system_tray_config = self.app_handle().config().tauri.system_tray.clone();
         let icon_path = String::from(system_tray_config.unwrap().icon_path.to_str().unwrap());
-        let env = Env::default();
-        let res = tauri::api::path::resource_dir(self.app_handle().package_info(), &env).unwrap();
-        let icon_path = res.join(icon_path);
         let icon = fs::read(icon_path).unwrap();
 
         let window = self;
@@ -40,9 +37,11 @@ impl<R: Runtime> WindowExt<R> for Window<R> {
                 height: size.height,
             },
         );
+
         let _ = self.hide();
         let statusbar_controller = StatusBarController::new(popover_controller.popover(), icon);
         statusbar_controller.set_on_click_handler();
+        let _ = self.app_handle().tray_handle().destroy();
     }
 }
 
