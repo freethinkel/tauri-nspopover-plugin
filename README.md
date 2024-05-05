@@ -7,6 +7,9 @@ Only for MacOS
 </div>
 <!-- ![Screenshot](screenshots/example.png) -->
 
+
+### For tauri [v2](https://github.com/freethinkel/tauri-nspopover-plugin/tree/tauri-beta/v2)
+
 ## How to use?
 
 Cargo.toml
