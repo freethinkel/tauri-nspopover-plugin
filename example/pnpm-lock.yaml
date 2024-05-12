@@ -12,8 +12,8 @@ dependencies:
     specifier: '>=2.0.0-beta.0'
     version: 2.0.0-beta.4
   tauri-plugin-nspopover:
-    specifier: file:../
-    version: file:..
+    specifier: git+https://github.com/freethinkel/tauri-nspopover-plugin#tauri-beta/v2
+    version: github.com/freethinkel/tauri-nspopover-plugin/db7910bdee36253b302f3a944d7a1f655d0b3166
 
 devDependencies:
   '@tauri-apps/cli':
@@ -619,9 +619,10 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  file:..:
-    resolution: {directory: .., type: directory}
-    name: tauri-plugin-nspopover-api
+  github.com/freethinkel/tauri-nspopover-plugin/db7910bdee36253b302f3a944d7a1f655d0b3166:
+    resolution: {tarball: https://codeload.github.com/freethinkel/tauri-nspopover-plugin/tar.gz/db7910bdee36253b302f3a944d7a1f655d0b3166}
+    name: tauri-plugin-nspopover
+    version: 3.0.0
     dependencies:
       '@tauri-apps/api': 2.0.0-beta.11
       tslib: 2.6.2

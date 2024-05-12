@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::Manager;
+use tauri::{Manager, ActivationPolicy};
 use tauri_plugin_nspopover::WindowExt;
 
 fn main() {
@@ -9,6 +9,7 @@ fn main() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_nspopover::init())
         .setup(|app| {
+            app.set_activation_policy(ActivationPolicy::Accessory);
             let window = app.handle().get_webview_window("main").unwrap();
             window.to_popover();
 
