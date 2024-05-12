@@ -1,0 +1,1 @@
+async function o(o,n={},r){return window.__TAURI_INTERNALS__.invoke(o,n,r)}"function"==typeof SuppressedError&&SuppressedError;var n=function(){return o("plugin:nspopover|is_popover_shown")},r=function(){return o("plugin:nspopover|show_popover")},p=function(){return o("plugin:nspopover|hide_popover")};export{p as hide,n as isOpen,r as show};

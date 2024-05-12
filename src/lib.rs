@@ -5,7 +5,11 @@ use icrate::{
     Foundation::{CGSize, NSRectEdgeMaxY},
 };
 
-use tauri::{tray::TrayIcon, AppHandle, LogicalSize, Manager, Runtime, WebviewWindow};
+use tauri::{
+    plugin::{Builder, TauriPlugin},
+    tray::TrayIcon,
+    AppHandle, LogicalSize, Manager, Runtime, State, WebviewWindow,
+};
 
 use std::{
     cell::RefCell,
@@ -116,27 +120,11 @@ impl<R: Runtime> WindowExt<R> for WebviewWindow<R> {
         );
         let _ = self.hide();
 
-        let popover = Arc::new(Mutex::new(SafeNSPopover(
-            popover_controller.popover().clone(),
-        )));
-        let popover = Arc::clone(&popover);
-        let button = Arc::new(Mutex::new(SafeNSStatusBarButton(button.clone())));
-        let button = Arc::clone(&button);
-        tray.on_tray_icon_event(move |_, _event| unsafe {
-            let popover = popover.lock().unwrap().0.clone();
-            let button = button.lock().unwrap().0.clone();
-            let rect = button.bounds();
+        let popover = SafeNSPopover(popover_controller.popover().clone());
+        let button = SafeNSStatusBarButton(button.clone());
 
-            if !popover.isShown() {
-                popover.showRelativeToRect_ofView_preferredEdge(
-                    rect,
-                    button.as_ref(),
-                    NSRectEdgeMaxY,
-                );
-            } else {
-                popover.performClose(None);
-            }
-        });
+        let state = self.app_handle().state() as State<'_, AppState>;
+        *state.0.lock().unwrap() = Some(AppStateInner { popover, button });
     }
 }
 
@@ -145,3 +133,69 @@ struct SafeNSStatusBarButton(Id<NSStatusBarButton>);
 
 unsafe impl Send for SafeNSPopover {}
 unsafe impl Send for SafeNSStatusBarButton {}
+
+#[tauri::command]
+fn show_popover(state: State<'_, AppState>) -> Result<(), String> {
+    if state.0.lock().unwrap().as_ref().is_none() {
+        return Ok(());
+    }
+
+    let popover = state.0.lock().unwrap().as_ref().unwrap().popover.0.clone();
+    let button = state.0.lock().unwrap().as_ref().unwrap().button.0.clone();
+    let rect = button.bounds();
+
+    if unsafe { !popover.isShown() } {
+        unsafe {
+            popover.showRelativeToRect_ofView_preferredEdge(rect, button.as_ref(), NSRectEdgeMaxY);
+        }
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+fn hide_popover(state: State<'_, AppState>) -> Result<(), String> {
+    if state.0.lock().unwrap().as_ref().is_none() {
+        return Ok(());
+    }
+    let popover = state.0.lock().unwrap().as_ref().unwrap().popover.0.clone();
+
+    if unsafe { popover.isShown() } {
+        unsafe { popover.performClose(None) };
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+fn is_popover_shown(state: State<'_, AppState>) -> Result<bool, String> {
+    if state.0.lock().unwrap().as_ref().is_none() {
+        return Ok(false);
+    }
+
+    let popover = state.0.lock().unwrap().as_ref().unwrap().popover.0.clone();
+
+    Ok(unsafe { popover.isShown() })
+}
+
+struct AppStateInner {
+    popover: SafeNSPopover,
+    button: SafeNSStatusBarButton,
+}
+
+struct AppState(Mutex<Option<AppStateInner>>);
+
+pub fn init<R: Runtime>() -> TauriPlugin<R> {
+    Builder::new("nspopover")
+        .invoke_handler(tauri::generate_handler![
+            show_popover,
+            hide_popover,
+            is_popover_shown
+        ])
+        .setup(|app, _| {
+            app.manage(AppState(Mutex::new(None)));
+
+            Ok(())
+        })
+        .build()
+}

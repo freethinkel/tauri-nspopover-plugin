@@ -8,18 +8,25 @@ Only for MacOS
   <img src="./screenshots/example.png" width="300"/>
 </div>
 
-## How to use?
-
-Cargo.toml
+## Install
 
 ```toml
+# Cargo.toml
 [dependencies]
 tauri-plugin-nspopover = { git = "https://github.com/freethinkel/tauri-nspopover-plugin.git" }
 ```
 
-main.rs
+```json
+// package.json
+"dependencies": {
+  "tauri-plugin-nspopover": "git+https://github.com/freethinkel/tauri-nspopover-plugin#tauri-beta/v2"
+}
+```
+
+## Usage
 
 ```rust
+// main.rs
 use tauri::{ActivationPolicy, Manager};
 use tauri_plugin_nspopover::WindowExt;
 
@@ -37,23 +44,31 @@ fn main() {
 }
 ```
 
-tauri.config.json
-
 ```json
-
-  "systemTray": {
-    "iconPath": "icons/statusbar-icon.png",
-    "iconAsTemplate": true
-  },
+// tauri.config.json
+"systemTray": {
+  "iconPath": "icons/statusbar-icon.png",
+  "iconAsTemplate": true,
+  "id": "main"
+},
 ...
-  "windows": [
-    {
-      "fullscreen": false,
-      "resizable": true,
-      "title": "inboxion",
-      "width": 300,
-      "height": 450,
-      "transparent": true
-    }
-  ]
+"windows": [
+  {
+    "fullscreen": false,
+    "resizable": true,
+    "title": "inboxion",
+    "width": 300,
+    "height": 450,
+    "transparent": true
+  }
+]
+```
+
+## Example
+
+```sh
+git clone https://github.com/freethinkel/tauri-plugin-nspopover
+cd tauri-plugin-accent-color/example
+pnpm install
+pnpm tauri dev
 ```

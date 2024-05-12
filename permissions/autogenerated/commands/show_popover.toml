@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-show-popover"
+description = "Enables the show_popover command without any pre-configured scope."
+commands.allow = ["show_popover"]
+
+[[permission]]
+identifier = "deny-show-popover"
+description = "Denies the show_popover command without any pre-configured scope."
+commands.deny = ["show_popover"]
