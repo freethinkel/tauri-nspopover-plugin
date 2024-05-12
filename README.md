@@ -55,7 +55,7 @@ fn main() {
 "windows": [
   {
     "fullscreen": false,
-    "resizable": true,
+    "visible": false,
     "title": "inboxion",
     "width": 300,
     "height": 450,
