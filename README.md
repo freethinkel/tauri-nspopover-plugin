@@ -62,6 +62,36 @@ TrayIcon.new({
 });
 ```
 
+OR you can use rust api
+
+```rust
+fn main() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_nspopover::init())
+        .setup(|app| {
+            app.set_activation_policy(ActivationPolicy::Accessory);
+            let window = app.handle().get_webview_window("main").unwrap();
+            window.to_popover();
+
+            let tray = app.tray_by_id("main").unwrap();
+            let handle = app.handle().clone();
+
+            tray.on_tray_icon_event(move |_, event| {
+                if (!handle.is_popover_shown()) {
+                    handle.show_popover();
+                } else {
+                    handle.hide_popover();
+                }
+            });
+
+            Ok(())
+        })
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+```
+
 ```json
 // tauri.config.json
 "systemTray": {
