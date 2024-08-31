@@ -1,7 +1,7 @@
 [package]
 name = "tauri-plugin-nspopover"
-version = "3.1.0"
-authors = [ "freethinkel" ]
+version = "3.2.0"
+authors = ["freethinkel"]
 description = ""
 edition = "2021"
 rust-version = "1.70"
@@ -9,12 +9,23 @@ exclude = ["/examples", "/webview-dist", "/webview-src", "node_modules"]
 links = "tauri-plugin-nspopover"
 
 [dependencies]
-tauri = { version = "2.0.0-beta.11", features = ["macos-private-api", "tray-icon", "image-png"] }
+tauri = { version = "2.0.0-rc.6", features = [
+  "macos-private-api",
+  "tray-icon",
+  "image-png",
+] }
 serde = "1.0"
-thiserror = "1.0"
-icrate = { version = "0.1.0", features = ["Foundation", "Foundation_all", "AppKit", "AppKit_NSPopover", "AppKit_NSWindow", "AppKit_NSWindowController", "AppKit_NSViewController", "AppKit_NSStatusBar", "AppKit_NSStatusItem", "AppKit_NSButton", "AppKit_NSStatusBarButton", "AppKit_NSImage", "AppKit_NSColor"] }
 objc = "0.2.7"
 cocoa = "0.25.0"
+objc2-app-kit = { version = "0.2.2", features = [
+  "NSPopover",
+  "NSButton",
+  "NSColor",
+  "NSViewController",
+] }
+objc2 = "0.5.2"
+objc2-foundation = "0.2.2"
+tray-icon = { git = "https://github.com/freethinkel/tray-icon" }
 
 [build-dependencies]
-tauri-plugin = { version = "2.0.0-beta.9", features = ["build"] }
+tauri-plugin = { version = "2.0.0-rc.6", features = ["build"] }

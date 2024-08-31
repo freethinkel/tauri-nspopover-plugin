@@ -1,8 +1,6 @@
-use icrate::{
-    objc2::{ffi::YES, msg_send, rc::Id},
-    AppKit::{NSColor, NSPopover, NSPopoverBehaviorTransient, NSView, NSViewController, NSWindow},
-    Foundation::{CGSize, MainThreadMarker},
-};
+use objc2::{ffi::YES, msg_send, rc::Id};
+use objc2_app_kit::{NSColor, NSPopover, NSPopoverBehavior, NSView, NSViewController, NSWindow};
+use objc2_foundation::{CGSize, MainThreadMarker};
 
 pub struct PopoverController {
     popover: Id<NSPopover>,
@@ -39,7 +37,7 @@ impl PopoverController {
             ctrl.setView(view.as_ref());
 
             let popover = NSPopover::new(mtm);
-            popover.setBehavior(NSPopoverBehaviorTransient);
+            popover.setBehavior(NSPopoverBehavior::Transient);
             popover.setContentViewController(Some(ctrl.as_ref()));
 
             popover

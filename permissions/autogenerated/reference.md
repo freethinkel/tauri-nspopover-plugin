@@ -1,8 +1,88 @@
-| Permission | Description |
-|------|-----|
-|`allow-hide-popover`|Enables the hide_popover command without any pre-configured scope.|
-|`deny-hide-popover`|Denies the hide_popover command without any pre-configured scope.|
-|`allow-is-popover-shown`|Enables the is_popover_shown command without any pre-configured scope.|
-|`deny-is-popover-shown`|Denies the is_popover_shown command without any pre-configured scope.|
-|`allow-show-popover`|Enables the show_popover command without any pre-configured scope.|
-|`deny-show-popover`|Denies the show_popover command without any pre-configured scope.|
+
+## Permission Table 
+
+<table>
+<tr>
+<th>Identifier</th>
+<th>Description</th>
+</tr>
+
+
+<tr>
+<td>
+
+`nspopover:allow-hide-popover`
+
+</td>
+<td>
+
+Enables the hide_popover command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`nspopover:deny-hide-popover`
+
+</td>
+<td>
+
+Denies the hide_popover command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`nspopover:allow-is-popover-shown`
+
+</td>
+<td>
+
+Enables the is_popover_shown command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`nspopover:deny-is-popover-shown`
+
+</td>
+<td>
+
+Denies the is_popover_shown command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`nspopover:allow-show-popover`
+
+</td>
+<td>
+
+Enables the show_popover command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`nspopover:deny-show-popover`
+
+</td>
+<td>
+
+Denies the show_popover command without any pre-configured scope.
+
+</td>
+</tr>
+</table>

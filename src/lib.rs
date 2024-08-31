@@ -1,22 +1,13 @@
-use cocoa::{appkit::NSStatusItem, base::id};
-use icrate::{
-    objc2::rc::Id,
-    AppKit::{NSPopover, NSStatusBarButton, NSWindow},
-    Foundation::{CGSize, NSRectEdgeMaxY},
-};
-
+use objc2::rc::Retained;
+use objc2_app_kit::{NSPopover, NSStatusBarButton, NSWindow};
+use objc2_foundation::{CGSize,  NSRectEdge};
 use tauri::{
     plugin::{Builder, TauriPlugin},
     tray::TrayIcon,
     AppHandle, LogicalSize, Manager, Runtime, State, WebviewWindow,
 };
 
-use std::{
-    cell::RefCell,
-    ops::Deref,
-    rc::Rc,
-    sync::{Arc, Mutex},
-};
+use std::sync::Mutex;
 
 mod popover;
 
@@ -33,73 +24,30 @@ pub trait AppExt<R: Runtime> {
 
 pub use tauri::tray::TrayIconId;
 
-pub struct StatusItem {
-    pub(crate) id: TrayIconId,
-    inner: TrayIconWrapper,
-    pub(crate) app_handle: AppHandle,
-}
-
-impl AsRef<str> for StatusItem {
-    fn as_ref(&self) -> &str {
-        <TrayIconId as AsRef<str>>::as_ref(&self.id)
-    }
-}
-
-impl StatusItem {
-    pub fn app_handle(&self) -> &AppHandle {
-        &self.app_handle
-    }
-}
-
-#[derive(Debug)]
-pub struct TrayIconWrapper {
-    pub(crate) id: TrayIconId,
-    tray: Rc<RefCell<MacosTrayIcon>>,
-}
-
-impl AsRef<str> for TrayIconWrapper {
-    fn as_ref(&self) -> &str {
-        <TrayIconId as AsRef<str>>::as_ref(&self.id)
-    }
-}
-
-#[derive(Debug)]
-pub struct MacosTrayIcon {
-    ns_status_item: Option<id>,
-    pub(crate) tray_target: Option<id>,
-    pub(crate) id: TrayIconId,
-}
-
-impl Deref for MacosTrayIcon {
-    type Target = Option<id>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.tray_target
-    }
-}
-
-impl AsRef<str> for MacosTrayIcon {
-    fn as_ref(&self) -> &str {
-        <TrayIconId as AsRef<str>>::as_ref(&self.id)
-    }
+#[allow(dead_code)]
+pub struct StatusItem<R: Runtime> {
+    id: TrayIconId,
+    pub(crate) inner: tray_icon::TrayIcon,
+    app_handle: AppHandle<R>,
 }
 
 pub trait StatusItemGetter {
-    fn get_status_bar_button(&self) -> Id<NSStatusBarButton>;
+    fn get_status_bar_button(&self) -> Retained<NSStatusBarButton>;
 }
 
 impl<R: Runtime> StatusItemGetter for TrayIcon<R> {
-    fn get_status_bar_button(&self) -> Id<NSStatusBarButton> {
-        let status_item =
-            unsafe { std::mem::transmute::<&TrayIcon<R>, &StatusItem>(self) as &StatusItem };
+    fn get_status_bar_button(&self) -> Retained<NSStatusBarButton> {
+        let status_item: &StatusItem<R> =
+            unsafe { std::mem::transmute::<&TrayIcon<R>, &StatusItem<R>>(self) };
 
-        let macos_tray = status_item.inner.tray.clone();
-        let ns_status_item = unsafe { macos_tray.as_ptr().read().ns_status_item.unwrap() };
-        let ns_status_item: id = unsafe { std::mem::transmute(ns_status_item) };
-        let ns_status_button = unsafe { ns_status_item.button() };
-        let ns_status_button = unsafe { std::mem::transmute(ns_status_button) };
+        let mtm = status_item.inner.tray.as_ref().borrow().mtm;
 
-        return ns_status_button;
+        let tray = unsafe { status_item.inner.tray.try_borrow_unguarded().unwrap() };
+
+        let status = tray.ns_status_item.as_ref().unwrap();
+        let btn = unsafe { status.button(mtm).unwrap() };
+
+        return btn;
     }
 }
 
@@ -152,7 +100,8 @@ impl<R: Runtime> AppExt<R> for AppHandle<R> {
         }
 
         let popover = state.0.lock().unwrap().as_ref().unwrap().popover.0.clone();
-        let button = state.0.lock().unwrap().as_ref().unwrap().button.0.clone();
+        let binding = state.0.lock().unwrap();
+        let button = binding.as_ref().unwrap().button.0.clone();
         let rect = button.bounds();
 
         if unsafe { !popover.isShown() } {
@@ -160,7 +109,7 @@ impl<R: Runtime> AppExt<R> for AppHandle<R> {
                 popover.showRelativeToRect_ofView_preferredEdge(
                     rect,
                     button.as_ref(),
-                    NSRectEdgeMaxY,
+                    NSRectEdge::MaxY,
                 );
             }
         }
@@ -179,8 +128,8 @@ impl<R: Runtime> AppExt<R> for AppHandle<R> {
     }
 }
 
-struct SafeNSPopover(Id<NSPopover>);
-struct SafeNSStatusBarButton(Id<NSStatusBarButton>);
+struct SafeNSPopover(Retained<NSPopover>);
+struct SafeNSStatusBarButton(Retained<NSStatusBarButton>);
 
 unsafe impl Send for SafeNSPopover {}
 unsafe impl Send for SafeNSStatusBarButton {}
