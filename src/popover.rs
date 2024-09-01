@@ -1,14 +1,14 @@
 use objc2::{ffi::YES, msg_send, rc::Id};
 use objc2_app_kit::{NSColor, NSPopover, NSPopoverBehavior, NSView, NSViewController, NSWindow};
-use objc2_foundation::{CGSize, MainThreadMarker};
+use objc2_foundation::MainThreadMarker;
 
 pub struct PopoverController {
     popover: Id<NSPopover>,
 }
 
 impl PopoverController {
-    pub fn new(window: &NSWindow, size: CGSize) -> Self {
-        let popover = Self::create_popover(window, size);
+    pub fn new(window: &NSWindow) -> Self {
+        let popover = Self::create_popover(window);
         return PopoverController { popover };
     }
 
@@ -28,7 +28,7 @@ impl PopoverController {
         return view;
     }
 
-    fn create_popover(window: &NSWindow, size: CGSize) -> Id<NSPopover> {
+    fn create_popover(window: &NSWindow) -> Id<NSPopover> {
         let view = Self::get_target_view(window);
         unsafe {
             let mtm = MainThreadMarker::new().unwrap();
@@ -39,6 +39,8 @@ impl PopoverController {
             let popover = NSPopover::new(mtm);
             popover.setBehavior(NSPopoverBehavior::Transient);
             popover.setContentViewController(Some(ctrl.as_ref()));
+            let content_size = window.frame().size;
+            popover.setContentSize(content_size);
 
             popover
         }

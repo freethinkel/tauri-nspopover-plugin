@@ -1,10 +1,10 @@
 use objc2::rc::Retained;
 use objc2_app_kit::{NSPopover, NSStatusBarButton, NSWindow};
-use objc2_foundation::{CGSize,  NSRectEdge};
+use objc2_foundation::{NSRectEdge};
 use tauri::{
     plugin::{Builder, TauriPlugin},
     tray::TrayIcon,
-    AppHandle, LogicalSize, Manager, Runtime, State, WebviewWindow,
+    AppHandle, Manager, Runtime, State, WebviewWindow,
 };
 
 use std::sync::Mutex;
@@ -20,6 +20,8 @@ pub trait AppExt<R: Runtime> {
     fn is_popover_shown(&self) -> bool;
     fn show_popover(&self);
     fn hide_popover(&self);
+    fn ns_popover(&self) -> Retained<NSPopover>;
+    fn ns_statusbar_button(&self) -> Retained<NSStatusBarButton>;
 }
 
 pub use tauri::tray::TrayIconId;
@@ -62,14 +64,9 @@ impl<R: Runtime> WindowExt<R> for WebviewWindow<R> {
         let ns_window = unsafe { (window.cast() as *mut NSWindow).as_ref().unwrap() };
 
         let scale = self.scale_factor().unwrap();
-        let size: LogicalSize<f64> = self.inner_size().unwrap().to_logical(scale);
 
         let popover_controller = PopoverController::new(
-            ns_window,
-            CGSize {
-                width: size.width,
-                height: size.height,
-            },
+            ns_window
         );
         let _ = self.hide();
 
@@ -89,9 +86,21 @@ impl<R: Runtime> AppExt<R> for AppHandle<R> {
             return false;
         }
 
-        let popover = state.0.lock().unwrap().as_ref().unwrap().popover.0.clone();
+        let popover = self.ns_popover();
 
         unsafe { popover.isShown() }
+    }
+    fn ns_popover(&self) -> Retained<NSPopover> {
+        let state: State<AppState> = self.state();
+        let popover = state.0.lock().unwrap().as_ref().unwrap().popover.0.clone();
+
+        popover
+    }
+    fn ns_statusbar_button(&self) -> Retained<NSStatusBarButton> {
+        let state: State<AppState> = self.state();
+        let button = state.0.lock().unwrap().as_ref().unwrap().button.0.clone();
+
+        button
     }
     fn show_popover(&self) {
         let state: State<AppState> = self.state();
@@ -99,9 +108,8 @@ impl<R: Runtime> AppExt<R> for AppHandle<R> {
             return;
         }
 
-        let popover = state.0.lock().unwrap().as_ref().unwrap().popover.0.clone();
-        let binding = state.0.lock().unwrap();
-        let button = binding.as_ref().unwrap().button.0.clone();
+        let popover = self.ns_popover();
+        let button = self.ns_statusbar_button();
         let rect = button.bounds();
 
         if unsafe { !popover.isShown() } {
@@ -120,7 +128,7 @@ impl<R: Runtime> AppExt<R> for AppHandle<R> {
         if state.0.lock().unwrap().as_ref().is_none() {
             return;
         }
-        let popover = state.0.lock().unwrap().as_ref().unwrap().popover.0.clone();
+        let popover = self.ns_popover();
 
         if unsafe { popover.isShown() } {
             unsafe { popover.performClose(None) };

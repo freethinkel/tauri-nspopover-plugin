@@ -1,6 +1,6 @@
 {
   "name": "tauri-plugin-nspopover",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "author": "freethinkel",
   "description": "",
   "browser": "webview-dist/index.js",
