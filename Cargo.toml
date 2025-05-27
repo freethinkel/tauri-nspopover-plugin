@@ -9,7 +9,7 @@ exclude = ["/examples", "/webview-dist", "/webview-src", "node_modules"]
 links = "tauri-plugin-nspopover"
 
 [dependencies]
-tauri = { version = "2.0.0-rc.6", features = [
+tauri = { version = "2.2.5", features = [
   "macos-private-api",
   "tray-icon",
   "image-png",
@@ -17,15 +17,15 @@ tauri = { version = "2.0.0-rc.6", features = [
 serde = "1.0"
 objc = "0.2.7"
 cocoa = "0.25.0"
-objc2-app-kit = { version = "0.2.2", features = [
+objc2-app-kit = { version = "0.3.1", features = [
   "NSPopover",
   "NSButton",
   "NSColor",
   "NSViewController",
 ] }
-objc2 = "0.5.2"
-objc2-foundation = "0.2.2"
+objc2 = "0.6.1"
+objc2-foundation = { version = "0.3.1" }
 tray-icon = { git = "https://github.com/freethinkel/tray-icon" }
 
 [build-dependencies]
-tauri-plugin = { version = "2.0.0-rc.6", features = ["build"] }
+tauri-plugin = { version = "2.2.0", features = ["build"] }

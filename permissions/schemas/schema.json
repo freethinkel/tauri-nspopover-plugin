@@ -49,7 +49,7 @@
           "minimum": 1.0
         },
         "description": {
-          "description": "Human-readable description of what the permission does. Tauri convention is to use <h4> headings in markdown content for Tauri documentation generation purposes.",
+          "description": "Human-readable description of what the permission does. Tauri convention is to use `<h4>` headings in markdown content for Tauri documentation generation purposes.",
           "type": [
             "string",
             "null"
@@ -111,7 +111,7 @@
           "type": "string"
         },
         "description": {
-          "description": "Human-readable description of what the permission does. Tauri internal convention is to use <h4> headings in markdown content for Tauri documentation generation purposes.",
+          "description": "Human-readable description of what the permission does. Tauri internal convention is to use `<h4>` headings in markdown content for Tauri documentation generation purposes.",
           "type": [
             "string",
             "null"
@@ -295,46 +295,40 @@
       "type": "string",
       "oneOf": [
         {
-          "description": "allow-hide-popover -> Enables the hide_popover command without any pre-configured scope.",
+          "description": "Enables the hide_popover command without any pre-configured scope.",
           "type": "string",
-          "enum": [
-            "allow-hide-popover"
-          ]
+          "const": "allow-hide-popover",
+          "markdownDescription": "Enables the hide_popover command without any pre-configured scope."
         },
         {
-          "description": "deny-hide-popover -> Denies the hide_popover command without any pre-configured scope.",
+          "description": "Denies the hide_popover command without any pre-configured scope.",
           "type": "string",
-          "enum": [
-            "deny-hide-popover"
-          ]
+          "const": "deny-hide-popover",
+          "markdownDescription": "Denies the hide_popover command without any pre-configured scope."
         },
         {
-          "description": "allow-is-popover-shown -> Enables the is_popover_shown command without any pre-configured scope.",
+          "description": "Enables the is_popover_shown command without any pre-configured scope.",
           "type": "string",
-          "enum": [
-            "allow-is-popover-shown"
-          ]
+          "const": "allow-is-popover-shown",
+          "markdownDescription": "Enables the is_popover_shown command without any pre-configured scope."
         },
         {
-          "description": "deny-is-popover-shown -> Denies the is_popover_shown command without any pre-configured scope.",
+          "description": "Denies the is_popover_shown command without any pre-configured scope.",
           "type": "string",
-          "enum": [
-            "deny-is-popover-shown"
-          ]
+          "const": "deny-is-popover-shown",
+          "markdownDescription": "Denies the is_popover_shown command without any pre-configured scope."
         },
         {
-          "description": "allow-show-popover -> Enables the show_popover command without any pre-configured scope.",
+          "description": "Enables the show_popover command without any pre-configured scope.",
           "type": "string",
-          "enum": [
-            "allow-show-popover"
-          ]
+          "const": "allow-show-popover",
+          "markdownDescription": "Enables the show_popover command without any pre-configured scope."
         },
         {
-          "description": "deny-show-popover -> Denies the show_popover command without any pre-configured scope.",
+          "description": "Denies the show_popover command without any pre-configured scope.",
           "type": "string",
-          "enum": [
-            "deny-show-popover"
-          ]
+          "const": "deny-show-popover",
+          "markdownDescription": "Denies the show_popover command without any pre-configured scope."
         }
       ]
     }

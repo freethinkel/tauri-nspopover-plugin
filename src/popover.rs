@@ -1,9 +1,9 @@
-use objc2::{ffi::YES, msg_send, rc::Id};
+use objc2::{msg_send, rc::Retained, runtime::Bool};
 use objc2_app_kit::{NSColor, NSPopover, NSPopoverBehavior, NSView, NSViewController, NSWindow};
 use objc2_foundation::MainThreadMarker;
 
 pub struct PopoverController {
-    popover: Id<NSPopover>,
+    popover: Retained<NSPopover>,
 }
 
 impl PopoverController {
@@ -12,23 +12,23 @@ impl PopoverController {
         return PopoverController { popover };
     }
 
-    pub fn popover(&self) -> Id<NSPopover> {
+    pub fn popover(&self) -> Retained<NSPopover> {
         self.popover.clone()
     }
 
-    fn get_target_view(ns_window: &NSWindow) -> Id<NSView> {
+    fn get_target_view(ns_window: &NSWindow) -> Retained<NSView> {
         let view = ns_window.contentView().unwrap();
         view.setWantsLayer(true);
         unsafe {
             let color = NSColor::clearColor();
-            let _: () = msg_send![view.as_ref(), setBackgroundColor: color.as_ref()];
-            let _: () = msg_send![view.as_ref(), setOpaque: YES];
+            let _: () = msg_send![&*view, setBackgroundColor: &*color];
+            let _: () = msg_send![&*view, setOpaque: Bool::YES];
         }
 
         return view;
     }
 
-    fn create_popover(window: &NSWindow) -> Id<NSPopover> {
+    fn create_popover(window: &NSWindow) -> Retained<NSPopover> {
         let view = Self::get_target_view(window);
         unsafe {
             let mtm = MainThreadMarker::new().unwrap();
