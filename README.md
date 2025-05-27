@@ -40,7 +40,6 @@ fn main() {
 
           Ok(())
         })
-        .system_tray(tray)
         .plugin(tauri_plugin_nspopover::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -132,6 +131,20 @@ fn main() {
     "transparent": true
   }
 ]
+```
+
+## Permissions
+
+Don't forget to add the necessary permissions to your `src-tauri/capabilities/default.json` file.
+
+```json
+...
+  "nspopover:allow-show-popover",
+  "nspopover:allow-hide-popover",
+  "nspopover:allow-is-popover-shown",
+  "core:tray:allow-new",
+  "core:tray:default"
+...
 ```
 
 ## Example
