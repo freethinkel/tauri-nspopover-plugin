@@ -7,6 +7,8 @@
     "shell:allow-open",
     "nspopover:allow-show-popover",
     "nspopover:allow-hide-popover",
-    "nspopover:allow-is-popover-shown"
+    "nspopover:allow-is-popover-shown",
+    "core:tray:allow-new",
+    "core:tray:default"
   ]
 }
