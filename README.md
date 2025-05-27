@@ -6,68 +6,152 @@ Only for MacOS
   <img src="./screenshots/example.png" width="300"/>
 </div>
 
-### implementation for tauri v2 can be found [here](https://github.com/freethinkel/tauri-nspopover-plugin/tree/tauri-beta/v2)
-
-## How to use?
-
-Cargo.toml
+## Install
 
 ```toml
+# Cargo.toml
 [dependencies]
-tauri-plugin-nspopover = { git = "https://github.com/freethinkel/tauri-nspopover-plugin.git" }
+tauri-plugin-nspopover = { git = "https://github.com/freethinkel/tauri-nspopover-plugin.git", version = "4.0.0" }
 ```
 
-main.rs
+```json
+// package.json
+"dependencies": {
+  "tauri-plugin-nspopover": "git+https://github.com/freethinkel/tauri-nspopover-plugin"
+}
+```
+
+## Usage
 
 ```rust
+// main.rs
 use tauri::{ActivationPolicy, Manager};
-#[cfg(target_os = "macos")]
-use tauri_plugin_nspopover::WindowExt;
+use tauri_plugin_nspopover::{AppExt, ToPopoverOptions, WindowExt};
 
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
-            app.set_activation_policy(ActivationPolicy::Accessory);
-            let window = app.app_handle().get_window("main").unwrap();
-            #[cfg(target_os = "macos")]
-            window.to_popover();
+          app.set_activation_policy(ActivationPolicy::Accessory);
+          let window = app.handle().get_webview_window("main").unwrap();
 
-            Ok(())
+          window.to_popover(ToPopoverOptions {
+            is_fullsize_content: true,
+          });
+
+          Ok(())
         })
-        .system_tray(tray)
         .plugin(tauri_plugin_nspopover::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 ```
 
-tauri.config.json
+```ts
+// main.ts
+import { TrayIcon } from "@tauri-apps/api/tray";
+import { isOpen, show, hide } from "tauri-plugin-nspopover";
+
+TrayIcon.new({
+  id: "main",
+  async action(event) {
+    console.log(event);
+    if (
+      event.type === "Click" &&
+      event.buttonState === "Up" &&
+      event.button === "Left"
+    ) {
+      const isShown = await isOpen();
+
+      if (isShown) {
+        hide();
+      } else {
+        show();
+      }
+    }
+  },
+});
+```
+
+OR you can use rust api
+
+```rust
+fn main() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_nspopover::init())
+        .setup(|app| {
+          app.set_activation_policy(ActivationPolicy::Accessory);
+          let window = app.handle().get_webview_window("main").unwrap();
+          window.to_popover(ToPopoverOptions {
+              is_fullsize_content: true,
+          });
+
+          let tray = app.tray_by_id("main").unwrap();
+          let handle = app.handle().clone();
+
+          tray.on_tray_icon_event(move |_, event| match event {
+              TrayIconEvent::Click {
+                  button,
+                  button_state,
+                  ..
+              } => {
+                  if button == MouseButton::Left && button_state == MouseButtonState::Up {
+                      if !handle.is_popover_shown() {
+                          handle.show_popover();
+                      } else {
+                          handle.hide_popover();
+                      }
+                  }
+              }
+              _ => {}
+          });
+
+          Ok(())
+        })
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+```
 
 ```json
+// tauri.config.json
+"systemTray": {
+  "iconPath": "icons/statusbar-icon.png",
+  "iconAsTemplate": true,
+  "id": "main"
+},
+...
+"windows": [
+  {
+    "fullscreen": false,
+    "visible": false,
+    "title": "example",
+    "width": 300,
+    "height": 450,
+    "transparent": true
+  }
+]
+```
 
-  "systemTray": {
-    "iconPath": "icons/statusbar-icon.png",
-    "iconAsTemplate": true
-  },
-  ...
-  "windows": [
-    {
-      "fullscreen": false,
-      "resizable": true,
-      "title": "inboxion",
-      "width": 300,
-      "height": 450,
-      "visible": false,
-      "transparent": true
-    }
-  ]
+## Permissions
+
+Don't forget to add the necessary permissions to your `src-tauri/capabilities/default.json` file.
+
+```json
+...
+  "nspopover:allow-show-popover",
+  "nspopover:allow-hide-popover",
+  "nspopover:allow-is-popover-shown",
+  "core:tray:allow-new",
+  "core:tray:default"
+...
 ```
 
 ## Example
 
 ```sh
-git clone https://github.com/freethinkel/tauri-nspopover-plugin
-cd tauri-nspopover-plugin/example
-npm install
-npm run tauri dev
+git clone https://github.com/freethinkel/tauri-plugin-nspopover
+cd tauri-plugin-nspopover/example
+pnpm install
+pnpm tauri dev
 ```

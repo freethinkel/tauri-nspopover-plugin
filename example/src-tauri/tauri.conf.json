@@ -1,52 +1,45 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "productName": "example",
+  "version": "0.0.0",
+  "identifier": "com.tauri.dev",
   "build": {
     "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "pnpm build",
-    "devPath": "http://localhost:1420",
-    "distDir": "../dist",
-    "withGlobalTauri": true
+    "frontendDist": "../dist"
   },
-  "package": {
-    "productName": "example",
-    "version": "0.0.0"
-  },
-  "tauri": {
+  "app": {
+    "withGlobalTauri": true,
     "macOSPrivateApi": true,
-    "systemTray": {
+    "trayIcon": {
       "iconPath": "./icons/statusbar-icon.png",
-      "iconAsTemplate": true
-    },
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      }
+      "iconAsTemplate": true,
+      "id": "main"
     },
     "windows": [
       {
         "title": "example",
-        "width": 400,
-        "height": 400,
+        "transparent": true,
+        "decorations": false,
         "visible": false,
-        "transparent": true
+        "width": 400,
+        "height": 400
       }
     ],
     "security": {
       "csp": null
-    },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.tauri.dev",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
     }
-  }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "plugins": {}
 }

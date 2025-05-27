@@ -1,30 +1,45 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{ActivationPolicy, Manager, SystemTray};
-#[cfg(target_os = "macos")]
-use tauri_plugin_nspopover::WindowExt;
-
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+use tauri::{
+    tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconEvent},
+    ActivationPolicy, Manager,
+};
+use tauri_plugin_nspopover::{AppExt, ToPopoverOptions, WindowExt};
 
 fn main() {
-    let tray = SystemTray::new();
-
     tauri::Builder::default()
-        .setup(move |app| {
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_nspopover::init())
+        .setup(|app| {
             app.set_activation_policy(ActivationPolicy::Accessory);
-            let window = app.handle().get_window("main").unwrap();
-            #[cfg(target_os = "macos")]
-            window.to_popover();
+            let window = app.handle().get_webview_window("main").unwrap();
+            window.to_popover(ToPopoverOptions {
+                is_fullsize_content: true,
+            });
+
+            let tray = app.tray_by_id("main").unwrap();
+            let handle = app.handle().clone();
+
+            tray.on_tray_icon_event(move |_, event| match event {
+                TrayIconEvent::Click {
+                    button,
+                    button_state,
+                    ..
+                } => {
+                    if button == MouseButton::Left && button_state == MouseButtonState::Up {
+                        if !handle.is_popover_shown() {
+                            handle.show_popover();
+                        } else {
+                            handle.hide_popover();
+                        }
+                    }
+                }
+                _ => {}
+            });
 
             Ok(())
         })
-        .system_tray(tray)
-        .invoke_handler(tauri::generate_handler![greet])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

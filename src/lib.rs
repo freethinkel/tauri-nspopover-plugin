@@ -1,51 +1,195 @@
-use icrate::{AppKit::NSWindow, Foundation::CGSize};
-use statusbar::StatusBarController;
+use objc2::rc::Retained;
+use objc2_app_kit::{NSPopover, NSStatusBarButton, NSWindow};
+use objc2_foundation::NSRectEdge;
 use tauri::{
     plugin::{Builder, TauriPlugin},
-    LogicalSize, Manager, Runtime, Window,
+    tray::TrayIcon,
+    AppHandle, Manager, Runtime, State, WebviewWindow,
 };
 
-use std::fs;
+use std::sync::Mutex;
 
-mod action;
 mod popover;
-mod statusbar;
 
 use popover::PopoverController;
 
-pub trait WindowExt<R: Runtime> {
-    fn to_popover(&self);
+pub struct ToPopoverOptions {
+    pub is_fullsize_content: bool,
 }
 
-impl<R: Runtime> WindowExt<R> for Window<R> {
-    fn to_popover(&self) {
-        let system_tray_config = self.app_handle().config().tauri.system_tray.clone();
-        let icon_path = String::from(system_tray_config.unwrap().icon_path.to_str().unwrap());
-        let icon = fs::read(icon_path).unwrap();
+pub trait WindowExt<R: Runtime> {
+    fn to_popover(&self, options: ToPopoverOptions);
+}
+pub trait AppExt<R: Runtime> {
+    fn is_popover_shown(&self) -> bool;
+    fn show_popover(&self);
+    fn hide_popover(&self);
+    fn ns_popover(&self) -> Retained<NSPopover>;
+    fn ns_statusbar_button(&self) -> Retained<NSStatusBarButton>;
+}
+
+pub use tauri::tray::TrayIconId;
+
+#[allow(dead_code)]
+pub struct StatusItem<R: Runtime> {
+    id: TrayIconId,
+    pub(crate) inner: tray_icon::TrayIcon,
+    app_handle: AppHandle<R>,
+}
+
+pub trait StatusItemGetter {
+    fn get_status_bar_button(&self) -> Retained<NSStatusBarButton>;
+}
+
+impl<R: Runtime> StatusItemGetter for TrayIcon<R> {
+    fn get_status_bar_button(&self) -> Retained<NSStatusBarButton> {
+        let status_item: &StatusItem<R> =
+            unsafe { std::mem::transmute::<&TrayIcon<R>, &StatusItem<R>>(self) };
+
+        let mtm = status_item.inner.tray.as_ref().borrow().mtm;
+
+        let tray = unsafe { status_item.inner.tray.try_borrow_unguarded().unwrap() };
+
+        let status = tray.ns_status_item.as_ref().unwrap();
+        let btn = unsafe { status.button(mtm).unwrap() };
+
+        return unsafe { std::mem::transmute(btn) };
+    }
+}
+
+impl<R: Runtime> WindowExt<R> for WebviewWindow<R> {
+    fn to_popover(&self, options: ToPopoverOptions) {
+        let tray = self.app_handle().tray_by_id("main").unwrap();
+
+        let button = tray.get_status_bar_button();
 
         let window = self;
         let window = window.ns_window().unwrap();
         let ns_window = unsafe { (window.cast() as *mut NSWindow).as_ref().unwrap() };
 
-        let scale = self.scale_factor().unwrap();
-        let size: LogicalSize<f64> = self.inner_size().unwrap().to_logical(scale);
+        let _scale = self.scale_factor().unwrap();
 
-        let popover_controller = PopoverController::new(
-            ns_window,
-            CGSize {
-                width: size.width,
-                height: size.height,
-            },
-        );
-
+        let popover_controller = PopoverController::new(ns_window);
         let _ = self.hide();
-        let statusbar_controller = StatusBarController::new(popover_controller.popover(), icon);
-        statusbar_controller.set_on_click_handler();
-        let _ = self.app_handle().tray_handle().destroy();
+
+        let popover = SafeNSPopover(popover_controller.popover());
+        if options.is_fullsize_content {
+            unsafe { popover.0.setHasFullSizeContent(true) };
+        }
+        let button = SafeNSStatusBarButton(button);
+
+        let state = self.app_handle().state() as State<'_, AppState>;
+        *state.0.lock().unwrap() = Some(AppStateInner { popover, button });
     }
 }
 
-/// Initializes the plugin.
+impl<R: Runtime> AppExt<R> for AppHandle<R> {
+    fn is_popover_shown(&self) -> bool {
+        let state: State<AppState> = self.state();
+
+        if state.0.lock().unwrap().as_ref().is_none() {
+            return false;
+        }
+
+        let state_guard = state.0.lock().unwrap();
+        let inner = state_guard.as_ref().unwrap();
+        let popover = &inner.popover.0;
+
+        unsafe { popover.isShown() }
+    }
+    fn ns_popover(&self) -> Retained<NSPopover> {
+        let state: State<AppState> = self.state();
+        let guard = state.0.lock().unwrap();
+        let inner = guard.as_ref().unwrap();
+        let popover = &inner.popover.0;
+
+        // Create a new reference to the same popover
+        popover.clone()
+    }
+    fn ns_statusbar_button(&self) -> Retained<NSStatusBarButton> {
+        let state: State<AppState> = self.state();
+        let button = state.0.lock().unwrap().as_ref().unwrap().button.0.clone();
+
+        button
+    }
+
+    fn show_popover(&self) {
+        let state: State<AppState> = self.state();
+        if state.0.lock().unwrap().as_ref().is_none() {
+            return;
+        }
+
+        let popover = self.ns_popover();
+        let button = self.ns_statusbar_button();
+        let rect = button.bounds();
+
+        if unsafe { !popover.isShown() } {
+            unsafe {
+                popover.showRelativeToRect_ofView_preferredEdge(
+                    rect,
+                    button.as_ref(),
+                    NSRectEdge::MaxY,
+                );
+            }
+        }
+    }
+    fn hide_popover(&self) {
+        let state: State<AppState> = self.state();
+
+        if state.0.lock().unwrap().as_ref().is_none() {
+            return;
+        }
+        let popover = self.ns_popover();
+
+        if unsafe { popover.isShown() } {
+            unsafe { popover.performClose(None) };
+        }
+    }
+}
+
+struct SafeNSPopover(Retained<NSPopover>);
+struct SafeNSStatusBarButton(Retained<NSStatusBarButton>);
+
+unsafe impl Send for SafeNSPopover {}
+unsafe impl Send for SafeNSStatusBarButton {}
+
+#[tauri::command]
+fn show_popover<R: Runtime>(app: AppHandle<R>) -> Result<(), String> {
+    app.show_popover();
+
+    return Ok(());
+}
+
+#[tauri::command]
+fn hide_popover<R: Runtime>(app: AppHandle<R>) -> Result<(), String> {
+    app.hide_popover();
+
+    Ok(())
+}
+
+#[tauri::command]
+fn is_popover_shown<R: Runtime>(app: AppHandle<R>) -> Result<bool, String> {
+    return Ok(app.is_popover_shown());
+}
+
+struct AppStateInner {
+    popover: SafeNSPopover,
+    button: SafeNSStatusBarButton,
+}
+
+struct AppState(Mutex<Option<AppStateInner>>);
+
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
-    Builder::new("nspopover").build()
+    Builder::new("nspopover")
+        .invoke_handler(tauri::generate_handler![
+            show_popover,
+            hide_popover,
+            is_popover_shown
+        ])
+        .setup(|app, _| {
+            app.manage(AppState(Mutex::new(None)));
+
+            Ok(())
+        })
+        .build()
 }
