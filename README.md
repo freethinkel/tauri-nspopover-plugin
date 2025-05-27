@@ -1,7 +1,5 @@
 # Tauri Plugin NSpopover
 
-### for Tauri v2
-
 Only for MacOS
 
 <div style="display: flex; justify-content: center;">
@@ -13,13 +11,13 @@ Only for MacOS
 ```toml
 # Cargo.toml
 [dependencies]
-tauri-plugin-nspopover = { git = "https://github.com/freethinkel/tauri-nspopover-plugin.git", branch = "tauri-beta/v2", version = "3.0.0" }
+tauri-plugin-nspopover = { git = "https://github.com/freethinkel/tauri-nspopover-plugin.git", version = "4.0.0" }
 ```
 
 ```json
 // package.json
 "dependencies": {
-  "tauri-plugin-nspopover": "git+https://github.com/freethinkel/tauri-nspopover-plugin#tauri-beta/v2"
+  "tauri-plugin-nspopover": "git+https://github.com/freethinkel/tauri-nspopover-plugin"
 }
 ```
 
@@ -42,6 +40,7 @@ fn main() {
 
           Ok(())
         })
+        .system_tray(tray)
         .plugin(tauri_plugin_nspopover::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -139,7 +138,7 @@ fn main() {
 
 ```sh
 git clone https://github.com/freethinkel/tauri-plugin-nspopover
-cd tauri-plugin-accent-color/example
+cd tauri-plugin-nspopover/example
 pnpm install
 pnpm tauri dev
 ```
