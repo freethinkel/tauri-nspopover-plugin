@@ -25,6 +25,11 @@ impl PopoverController {
             let _: () = msg_send![&*view, setOpaque: Bool::YES];
         }
 
+        // Replace the window's contentView with an empty placeholder view.
+        let mtm = MainThreadMarker::new().unwrap();
+        let placeholder = NSView::new(mtm);
+        ns_window.setContentView(Some(&placeholder));
+
         return view;
     }
 
