@@ -27,7 +27,8 @@ impl PopoverController {
 
         // Replace the window's contentView with an empty placeholder view.
         let mtm = MainThreadMarker::new().unwrap();
-        let placeholder = NSView::new(mtm);
+        // SAFETY: NSView::new is safe to call with a valid MainThreadMarker
+        let placeholder = unsafe { NSView::new(mtm) };
         ns_window.setContentView(Some(&placeholder));
 
         return view;
