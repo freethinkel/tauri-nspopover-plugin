@@ -1,6 +1,6 @@
 [package]
 name = "tauri-plugin-nspopover"
-version = "4.0.1"
+version = "4.0.2"
 authors = ["freethinkel"]
 description = ""
 edition = "2021"
