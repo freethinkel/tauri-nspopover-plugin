@@ -40,8 +40,8 @@ impl<R: Runtime> StatusItemGetter for TrayIcon<R> {
         unsafe impl Send for SendButton {}
 
         self.with_inner_tray_icon(|inner| {
-            let mtm = MainThreadMarker::new()
-                .expect("with_inner_tray_icon closure runs on main thread");
+            let mtm =
+                MainThreadMarker::new().expect("with_inner_tray_icon closure runs on main thread");
             let status = inner
                 .ns_status_item()
                 .expect("NSStatusItem unavailable (tray dropped?)");
