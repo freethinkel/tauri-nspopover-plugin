@@ -11,7 +11,7 @@ Only for MacOS
 ```toml
 # Cargo.toml
 [dependencies]
-tauri-plugin-nspopover = { git = "https://github.com/freethinkel/tauri-nspopover-plugin.git", version = "4.0.1" }
+tauri-plugin-nspopover = { git = "https://github.com/freethinkel/tauri-nspopover-plugin.git", version = "4.1.0" }
 ```
 
 ```json

@@ -1,6 +1,6 @@
 use objc2::rc::Retained;
 use objc2_app_kit::{NSPopover, NSStatusBarButton, NSWindow};
-use objc2_foundation::NSRectEdge;
+use objc2_foundation::{MainThreadMarker, NSRectEdge};
 use tauri::{
     plugin::{Builder, TauriPlugin},
     tray::TrayIcon,
@@ -30,30 +30,25 @@ pub trait AppExt<R: Runtime> {
 
 pub use tauri::tray::TrayIconId;
 
-#[allow(dead_code)]
-pub struct StatusItem<R: Runtime> {
-    id: TrayIconId,
-    pub(crate) inner: tray_icon::TrayIcon,
-    app_handle: AppHandle<R>,
-}
-
 pub trait StatusItemGetter {
     fn get_status_bar_button(&self) -> Retained<NSStatusBarButton>;
 }
 
 impl<R: Runtime> StatusItemGetter for TrayIcon<R> {
     fn get_status_bar_button(&self) -> Retained<NSStatusBarButton> {
-        let status_item: &StatusItem<R> =
-            unsafe { std::mem::transmute::<&TrayIcon<R>, &StatusItem<R>>(self) };
+        struct SendButton(Retained<NSStatusBarButton>);
+        unsafe impl Send for SendButton {}
 
-        let mtm = status_item.inner.tray.as_ref().borrow().mtm;
-
-        let tray = unsafe { status_item.inner.tray.try_borrow_unguarded().unwrap() };
-
-        let status = tray.ns_status_item.as_ref().unwrap();
-        let btn = unsafe { status.button(mtm).unwrap() };
-
-        return unsafe { std::mem::transmute(btn) };
+        self.with_inner_tray_icon(|inner| {
+            let mtm =
+                MainThreadMarker::new().expect("with_inner_tray_icon closure runs on main thread");
+            let status = inner
+                .ns_status_item()
+                .expect("NSStatusItem unavailable (tray dropped?)");
+            SendButton(status.button(mtm).expect("NSStatusBarButton unavailable"))
+        })
+        .expect("with_inner_tray_icon dispatch failed")
+        .0
     }
 }
 

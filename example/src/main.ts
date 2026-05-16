@@ -23,5 +23,6 @@ const main = async () => {
   });
 };
 
+void main;
 // uncomment and disable rust code to handle popover in javascript
 // main();
